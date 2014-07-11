@@ -1,0 +1,8 @@
+<virtualIp xmlns="http://docs.rackspace.com/core/system/CloudLoadBalancers/vip"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://docs.rackspace.com/core/system/CloudLoadBalancers/vip ../vip.xsd" 
+
+    address="10.0.0.16" ipVersion="IPV4" type="PUBLIC"
+
+/>
+	

@@ -1,0 +1,78 @@
+<systemSchema xmlns="http://docs.rackspace.com/core/system/schema"
+              version="1"
+              serviceCode="CloudLoadBalancers"
+              resourceType="NODE"
+              namespace="http://docs.rackspace.com/core/system/schema/CloudLoadBalancers">
+    <description>
+        System events for Lbaas Nodes
+    </description>
+
+    <state name="Enabled">
+        The node is enabled.
+    </state>
+
+    <state name="Draining">
+        The node is draining.
+    </state>
+
+    <state name="Disabled">
+        The node is disabled.
+    </state>
+
+    <attributeGroup name="NodeAtts">
+        <description>
+            Common node attributes used by most events.
+        </description>
+        <attribute name="address" type="string" use="optional">
+            Address of the node.
+        </attribute>
+
+        <attribute name="port" type="int" max="65535" min="1"
+                   use="optional">
+            Port number of the service being load balanced.
+        </attribute>
+
+        <attribute name="algorithm" type="string" use="optional">
+            The name of the load balancing algorithm used to route requests to nodes.
+        </attribute>
+
+        <attribute name="weight" type="int" max="100" min="1"
+                   use="optional">
+            Used by the 'WEIGHTED_LEAST_CONNECTION' and
+            'WEIGHTED_ROUND_ROBIN' algorithms.
+        </attribute>
+    </attributeGroup>
+
+    <transition name="create"  from="Start" to="Enabled" attributeGroups="NodeAtts"/>
+    <transition name="update"  from="Enabled" to="Enabled" attributeGroups="NodeAtts"/>
+    <transition name="drain"   from="Enabled" to="Draining" attributeGroups="NodeAtts"/>
+    <transition name="disable" from="Enabled" to="Disabled" attributeGroups="NodeAtts"/>
+    <transition name="disable" from="Enabled" to="Disabled" attributeGroups="NodeAtts" actor="SYSTEM"/>
+    <transition name="delete"  from="Enabled" to="End"/>
+
+    <transition name="enable"   from="Draining" to="Enabled" attributeGroups="NodeAtts"/>
+    <transition name="update"   from="Draining" to="Draining" attributeGroups="NodeAtts"/>
+    <transition name="disable"  from="Draining" to="Disabled" attributeGroups="NodeAtts"/>
+    <transition name="disable"  from="Draining" to="Disabled" attributeGroups="NodeAtts" actor="SYSTEM"/>
+    <transition name="delete"   from="Draining" to="End"/>
+
+
+    <transition name="enable"   from="Disabled" to="Enabled" attributeGroups="NodeAtts"/>
+    <transition name="drain"    from="Disabled" to="Draining" attributeGroups="NodeAtts"/>
+    <transition name="update"   from="Disabled" to="Disabled" attributeGroups="NodeAtts"/>
+    <transition name="delete"   from="Draining" to="End"/>
+
+
+    <xpathAssertion test="$event/@resourceId castable as xs:integer" scope="entry">
+        The resource Id for a VIP should be an integer.
+    </xpathAssertion>
+
+    <xpathAssertion test="if ($sys/@IPversion = 'IPV4') then xs:integer($event/@resourceId) &gt;= 1 and xs:integer($event/@resourceId) &lt; 9000000 else true()" scope="entry">
+        The resource Id for a vip (IPV4) should be between 1 and 8999999.
+    </xpathAssertion>
+
+    <xpathAssertion test="if ($sys/@IPversion = 'IPV6') then xs:integer($event/@resourceId) &gt;= 9000000 else true()" scope="entry">
+        The resource Id for a vip (IPV6) should be greater than or equal to 9000000.
+    </xpathAssertion>
+
+</systemSchema>

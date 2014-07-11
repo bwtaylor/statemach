@@ -1,0 +1,222 @@
+<systemSchema xmlns="http://docs.rackspace.com/core/system/schema"
+              version="1"
+              serviceCode="CloudLoadBalancers"
+              resourceType="LB">
+    <description>
+        System events for Lbaas load balancers
+    </description>
+
+    <state name="Loadbalancing">
+        A load balancer is load balancing
+    </state>
+
+    <attributeGroup name="NodeAtts">
+        <description>
+            Common node attributes used by most events.
+        </description>
+        <attribute name="address" type="string" use="optional">
+            Address of the node.
+        </attribute>
+
+        <attribute name="port" type="int" max="65535" min="1"
+                   use="optional">
+            Port number of the service being load balanced.
+        </attribute>
+
+        <attribute name="weight" type="int" max="100" min="1"
+                   use="optional">
+            Used by the 'WEIGHTED_LEAST_CONNECTION' and
+            'WEIGHTED_ROUND_ROBIN' algorithms.
+        </attribute>
+    </attributeGroup>
+
+    <attributeGroup name="VipAtts">
+        <description>
+            Common vip attributes used by most events.
+        </description>
+        <attribute name="address" type="string"
+                   use="required">
+            Virtual IP address.
+        </attribute>
+
+        <attribute name="IPversion" type="string"
+                   allowedValues="IPV4 IPV6"
+                   use="required">
+            IP version.
+        </attribute>
+
+        <attribute name="type" type="string"
+                   allowedValues="PUBLIC SERVICENET"
+                   use="required">
+            Virtual IP type. Either 'PUBLIC' or 'SERVICENET'.
+        </attribute>
+    </attributeGroup>
+
+    <attributeGroup name="SessionPersistenceAtts">
+        <description>
+            Common session persistence attributes used by most events.
+        </description>
+        <attribute name="persistenceType" type="string"
+                   allowedValues="HTTP_COOKIE NONE SOURCE_IP"
+                   use="required">
+            Session Persistence Type.
+        </attribute>
+    </attributeGroup>
+
+    <attributeGroup name="healthMonitorAtts">
+        <description>
+            Common health monitor attributes used by most events.
+        </description>
+        <attribute name="attemptsBeforeDeactivation" type="string"
+                   max="10" min="1" use="required">
+            Attempts before deactivation.
+        </attribute>
+        <attribute name="bodyRegex" type="string"
+                   use="required">
+            Body regex.
+        </attribute>
+        <attribute name="delay" type="string" max="3600" min="1"
+                   use="required">
+            Delay.
+        </attribute>
+        <attribute name="hostHeader" type="string"
+                   use="required">
+            Host header.
+        </attribute>
+        <attribute name="path" type="string"
+                   use="required">
+            Path.
+        </attribute>
+        <attribute name="statusRegex" type="string"
+                   use="required">
+            Status regex.
+        </attribute>
+        <attribute name="timeout" type="string" max="300" min="1"
+                   use="required">
+            Timeout.
+        </attribute>
+        <attribute name="type" type="string"
+                   allowedValues="HTTP HTTPS CONNECT"
+                   use="required">
+            Type.
+        </attribute>
+    </attributeGroup>
+
+    <attributeGroup name="ConnectionLimitsAtts">
+        <description>
+            Common connection limits attributes used by most events.
+        </description>
+        <attribute name="minConnections" type="string"
+                   max="1000" min="1" use="required">
+            Min number of connections.
+        </attribute>
+        <attribute name="maxConnections" type="string"
+                   max="100000" min="1" use="required">
+            Max number of connections.
+        </attribute>
+        <attribute name="maxConnectionRateFromIp" type="string"
+                   max="100000" min="1" use="required">
+            Max connection rate from IP.
+        </attribute>
+        <attribute name="maxConnectionRateTimer" type="string"
+                   max="3600" min="1" use="required">
+            Max connection rate timer.
+        </attribute>
+    </attributeGroup>
+
+    <attributeGroup name="ConnectionLoggingAtts">
+        <description>
+            Common connection logging attributes used by most events.
+        </description>
+        <attribute name="enabled" type="string"
+                   allowedValues="True False" use="required">
+            Enable or disable connection logging.
+        </attribute>
+    </attributeGroup>
+
+    <attributeGroup name="SSLTermAtts">
+        <description>
+            Common ssl termination attributes used by most events.
+        </description>
+        <attribute name="enabled" type="string"
+                   allowedValues="True False" use="required">
+            Enable or disable ssl termination.
+        </attribute>
+        <attribute name="securePort" type="string"
+                   max="65535" min="1" use="required">
+            SSL Termination port.
+        </attribute>
+        <attribute name="secureTrafficOnly" type="string"
+                   allowedValues="True False" use="required">
+            Secure traffic only.
+        </attribute>
+        <attribute name="privateKey" type="string"
+                   use="required">
+            Private Key.
+        </attribute>
+        <attribute name="certificate" type="string"
+                   use="required">
+            Public certificate.
+        </attribute>
+        <attribute name="intermediateCertificate" type="string"
+                   use="required">
+            Intermediate certificate.
+        </attribute>
+    </attributeGroup>
+
+    <attributeGroup name="LBAtts">
+        <description>
+            Common load balancer attributes used by most events.
+        </description>
+        <attribute name="name" type="string"
+                   use="required">
+            Load balancer name.
+        </attribute>
+        <attribute name="protocol" type="string"
+                   allowedValues="DNS_TCP DNS_UDP FTP HTTP HTTPS IMAPS IMAPv2 IMAPv3 IMAPv4
+                   LDAP LDAPS MYSQL POP3 POP3S SFTP SMTP TCP TCP_CLIENT_FIRST UDP UDP_STREAM" use="required">
+            Load balancer protocol.
+        </attribute>
+        <attribute name="halfClosed" type="string"
+                   allowedValues="True False" use="optional">
+            Load balancer half closed.
+        </attribute>
+        <attribute name="algorithm" type="string"
+                   allowedValues="LEAST_CONNECTIONS RANDOM ROUND_ROBIN
+                   WEIGHTED_LEAST_CONNECTIONS WEIGHTED_ROUND_ROBIN" use="required">
+            Load balancer algorithm.
+        </attribute>
+        <attribute name="port" type="string"
+                   max="65535" min="1" use="required">
+            Load balancer port.
+        </attribute>
+        <attribute name="timeout" type="string"
+                   max="120" min="30" use="optional">
+            Load balancer timeout.
+        </attribute>
+        <attribute name="httpsRedirect" type="string"
+                   allowedValues="True False" use="optional">
+            Load balancer https redirect.
+        </attribute>
+
+    </attributeGroup>
+
+    <transition name="create"  from="Start" to="Loadbalancing"
+                attributeGroups="LBAtts, NodeAtts, VipAtts, SessionPersistenceAtts,
+                healthMonitorAtts, ConnectionLimitsAtts, ConnectionLoggingAtts"/>
+    <transition name="update"  from="Loadbalancing" to="Loadbalancing"
+                attributeGroups="LBAtts"/>
+    <transition name="session-persistence-update"  from="Loadbalancing" to="Loadbalancing"
+                attributeGroups="SessionPersistenceAtts"/>
+    <transition name="connection-throttle-update"  from="Loadbalancing" to="Loadbalancing"
+                attributeGroups="ConnectionLimitsAtts"/>
+    <transition name="connection-logging-update"  from="Loadbalancing" to="Loadbalancing"
+                attributeGroups="ConnectionLoggingAtts"/>
+    <transition name="health-monitor-update"  from="Loadbalancing" to="Loadbalancing"
+                attributeGroups="healthMonitorAtts"/>
+    <transition name="ssl-termination-update"  from="Loadbalancing" to="Loadbalancing"
+                attributeGroups="SSLTermAtts"/>
+    <transition name="delete"  from="Loadbalancing" to="End"/>
+
+</systemSchema>
+

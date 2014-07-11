@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<event xmlns="http://schemas.dmtf.org/cloud/audit/1.0/"
+    xmlns:clb_vip="http://docs.rackspace.com/core/system/CloudLoadBalancers/vip"
+    
+    id="7ba76892-4058-11e3-806b-002500a28a7a" 
+    eventType="activity" 
+    eventTime="2012-06-15T10:19:52Z" 
+    action="enable" 
+    outcome="success" > 
+    
+    <initiator id="keystone://user/some_guy" typeURI="service/security/account/user" name="some_guy" /> 
+    
+    <attachments> 
+        <attachment 
+            contentType="http://docs.rackspace.com/core/system/CloudLoadBalancers/vip">
+            <content>
+                
+                <clb_vip:virtualIp id="13" address="10.0.0.16" ipVersion="IPV4" type="PUBLIC"/>
+                
+            </content> 
+        </attachment>
+    </attachments>
+
+    <tags> 
+        <tag>region:DFW</tag> 
+        <tag>//rackspacecloud.com/tenantId?value=1223</tag> 
+    </tags>
+    
+    <reportchain> 
+        <reporterstep role="observer" reporterTime="2012-03-22T13:00:00-04:00"> 
+            <reporter id="someclbnode.ord.loadbalancers.api.rackspacecloud.com"/> 
+        </reporterstep> 
+        <reporterstep role="relay" reporterTime="2012-03-22T13:00:12-04:00"> 
+            <reporter id="repose-01.ord.blah.rackspacecloud.com"/> 
+        </reporterstep> 
+    </reportchain> 
+
+</event>

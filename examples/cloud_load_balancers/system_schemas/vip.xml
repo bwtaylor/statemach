@@ -1,0 +1,46 @@
+<systemSchema xmlns="http://docs.rackspace.com/core/system/schema"
+              version="1"
+              serviceCode="CloudLoadBalancers"
+              resourceType="VIP">
+    <description>
+        System events for Lbaas Virtual IPs
+    </description>
+
+    <state name="Allocated">
+      A VIP is allocated
+    </state>
+
+    <transition name="allocate" from="Start" to="Allocated">
+        <attribute name="address" type="string"
+                   use="required">
+            Virtual IP address.
+        </attribute>
+
+        <attribute name="IPversion" type="string"
+                   allowedValues="IPV4 IPV6"
+                   use="required">
+            IP version.
+        </attribute>
+
+        <attribute name="type" type="string"
+                   allowedValues="PUBLIC SERVICENET"
+                   use="required">
+            Virtual IP type.  Either 'PUBLIC' or 'SERVICENET'.
+        </attribute>
+    </transition>
+
+    <transition name="deallocate" from="Allocated" to="End"/>
+
+    <xpathAssertion test="$event/@resourceId castable as xs:integer" scope="entry">
+        The resource Id for a VIP should be an integer.
+    </xpathAssertion>
+
+    <xpathAssertion test="if ($sys/@IPversion = 'IPV4') then xs:integer($event/@resourceId) &gt;= 1 and xs:integer($event/@resourceId) &lt; 9000000 else true()" scope="entry">
+        The resource Id for a vip (IPV4) should be between 1 and 8999999.
+    </xpathAssertion>
+
+    <xpathAssertion test="if ($sys/@IPversion = 'IPV6') then xs:integer($event/@resourceId) &gt;= 9000000 else true()" scope="entry">
+        The resource Id for a vip (IPV6) should be greater than or equal to 9000000.
+    </xpathAssertion>
+    
+</systemSchema>

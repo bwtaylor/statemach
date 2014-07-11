@@ -1,0 +1,17 @@
+<systemSchema xmlns="http://docs.rackspace.com/core/system/schema"
+              version="{{ state_machine.version }}"
+              serviceCode="{{ state_machine.service }}"
+              resourceType="{{ state_machine.resource }}">
+    <description>
+        {{ state_machine.description }}
+    </description>
+
+{% for state in states %}
+    <state name="{{state.name}}">
+        {{state.description}}
+      </state>
+{% endfor %}
+
+</systemSchema>
+    
+

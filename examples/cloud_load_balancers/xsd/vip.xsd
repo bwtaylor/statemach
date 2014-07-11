@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    targetNamespace="http://docs.rackspace.com/core/system/CloudLoadBalancers/vip"
+    xmlns="http://docs.rackspace.com/core/system/CloudLoadBalancers/vip" >
+    
+    <xs:element name="virtualIp" type="virtualIpType"/>
+    
+    <xs:complexType name="virtualIpType">
+        <xs:attributeGroup ref="virtualIpAttributes"/>
+    </xs:complexType> 
+    
+    <xs:attributeGroup name="virtualIpAttributes">
+        <xs:attribute name="address" type="xs:string" use="optional"/>
+        <xs:attribute name="type" type="vipTypeType" use="required"/>
+        <xs:attribute name="ipVersion" type="ipVersionType" use="optional"/>
+    </xs:attributeGroup>
+        
+    <xs:simpleType name="vipTypeType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="PUBLIC">
+                <xs:annotation>
+                    <xs:documentation>An address that is routable on the public Internet.</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="SERVICENET">
+                <xs:annotation>
+                    <xs:documentation>An address that is routable only on ServiceNet.</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="ipVersionType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="IPV4">
+                <xs:annotation>
+                    <xs:documentation>Version 4 of the Internet Protocol. Defined by RFC 791.</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="IPV6">
+                <xs:annotation>
+                    <xs:documentation>Version 6 of the Internet Protocol. Defined by RFC 2460.</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+
+</xs:schema>
