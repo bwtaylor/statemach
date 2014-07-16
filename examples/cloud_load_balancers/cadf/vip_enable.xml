@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <event xmlns="http://schemas.dmtf.org/cloud/audit/1.0/"
-    xmlns:clb_vip="http://docs.rackspace.com/core/system/CloudLoadBalancers/vip"
+    xmlns:clb="http://docs.rackspace.com/core/system/CloudLoadBalancers/vip"
     
     id="7ba76892-4058-11e3-806b-002500a28a7a" 
     eventType="activity" 
@@ -16,7 +16,7 @@
             contentType="http://docs.rackspace.com/core/system/CloudLoadBalancers/vip">
             <content>
                 
-                <clb_vip:virtualIp id="13" address="10.0.0.16" ipVersion="IPV4" type="PUBLIC"/>
+                <clb:virtualIp id="13" address="10.0.0.16" ipVersion="IPV4" type="PUBLIC"/>
                 
             </content> 
         </attachment>

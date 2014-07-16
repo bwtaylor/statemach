@@ -1,0 +1,1574 @@
+<schema
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:schema="http://docs.rackspace.com/core/usage/schema"
+    xmlns:usage="http://docs.rackspace.com/core/usage"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xerces="http://xerces.apache.org"
+    xmlns:saxon="http://saxon.sf.net/"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+    targetNamespace="http://docs.rackspace.com/core/usage/schema"
+    version="1.0">
+
+    <import namespace="http://docs.rackspace.com/core/usage"
+            schemaLocation="ProductExtension-Annotations.xsd"/>
+
+    <element name="alternatives" type="schema:ProductSimpleSchemaAlternatives"/>
+
+    <element name="productSchema" type="schema:ProductSimpleSchemaBase">
+        <alternative test="contains(@type,'USAGE') or not(@type)" type="schema:ProductSimpleUsageSchema"/>
+        <alternative test="not(contains(@type,'USAGE'))" type="schema:ProductSimpleSchema"/>
+    </element>
+
+    <!--
+        Complex Types
+    -->
+    <complexType name="ProductSimpleSchemaAlternatives">
+        <annotation>
+            <documentation>
+                <html:p>
+                    A list of alternative versions of a simple product schemas.
+                </html:p>
+            </documentation>
+        </annotation>
+	<sequence>
+          <element ref="schema:productSchema" minOccurs="1" maxOccurs="unbounded"/>
+	</sequence>
+        <assert vc:minVersion="1.1"
+                test="every $pd in schema:productSchema satisfies $pd/@serviceCode = schema:productSchema[1]/@serviceCode"
+                xerces:message="All alternative schemas should share the same service code."
+                saxon:message="All alternative schemas should share the same service code.">
+            <annotation>
+                <documentation>
+                    <html:p>
+                        All alternative schemas should share the same service code.
+                    </html:p>
+                </documentation>
+            </annotation>
+        </assert>
+        <assert vc:minVersion="1.1"
+                test="every $pd in schema:productSchema satisfies $pd/@namespace = schema:productSchema[1]/@namespace"
+                xerces:message="All alternative schemas should share the same namespace."
+                saxon:message="All alternative schemas should share the same namespace.">
+            <annotation>
+                <documentation>
+                    <html:p>
+                        All alternative schemas should share the same namespace.
+                    </html:p>
+                </documentation>
+            </annotation>
+        </assert>
+        <assert vc:minVersion="1.1"
+                test="count(distinct-values(schema:productSchema/@version)) = count(schema:productSchema)"
+                xerces:message="Alternate message versions should each have a unique version identifier."
+                saxon:message="Alternate message versions should each have a unique version identifier.">
+            <annotation>
+                <documentation>
+                    <html:p>
+                        Alternate message versions should each have a unique version identifier.
+                    </html:p>
+                </documentation>
+            </annotation>
+        </assert>
+    </complexType>
+
+    <complexType name="ProductSimpleSchemaBase">
+        <all>
+            <element name="description" type="xsd:string">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A description for the schema.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </element>
+        </all>
+        <attribute name="version" type="xsd:string" use="required">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            The version of this particular product
+                            schema.  Any sort of version string is
+                            allowed. Each product schema must have a
+                            unique version.
+                        </html:p>
+                    </documentation>
+                </annotation>
+        </attribute>
+        <attribute name="type" type="usage:TypeList" use="optional" default="USAGE">
+            <annotation>
+                <documentation>
+                    <html:p>
+                        The types of messages that are applicable to
+                        this schema.
+                    </html:p>
+                </documentation>
+            </annotation>
+        </attribute>
+        <attribute name="namespace" type="xsd:anyURI" use="required">
+            <annotation>
+                <documentation>
+                    <html:p>
+                        The namespace for the schema.  The namespace
+                        must be unique for each product.  The same
+                        namespace may be used between product schema
+                        versions.
+                    </html:p>
+                </documentation>
+            </annotation>
+        </attribute>
+        <attribute name="resourceTypes" type="schema:NameList" use="optional">
+            <annotation>
+                <documentation>
+                    <html:p>
+                        A whitespace separated list of resource types.
+                        A product schema
+                        <html:strong>must</html:strong> specify at
+                        least one resource type if the groupByResource
+                        attribute is true.
+                    </html:p>
+                </documentation>
+            </annotation>
+        </attribute>
+        <attribute name="serviceCode" type="xsd:Name" use="required">
+            <annotation>
+                <documentation>
+                    <html:p>
+                        The name of the product or service. Should be
+                        a single word, no white-spaces are
+                        allowed. Example names "nova", "MaaS",
+                        etc. The name should uniquely identify the
+                        product or service.  The name is used to
+                        construct atom categories for events of this
+                        type.
+                    </html:p>
+                </documentation>
+            </annotation>
+        </attribute>
+        <assert vc:minVersion="1.1"
+                test="every $attribute in schema:attribute satisfies
+                         if ($attribute/@withResource) then
+                             empty(for $r in tokenize(string($attribute/@withResource), ' ') return
+                                   if ($r = tokenize(string(@resourceTypes), ' ')) then () else true())
+                         else true()"
+                xerces:message="The 'withResource' attribute should reference a resource from the 'resourceTypes' attribute."
+                saxon:message="The 'withResource' attribute should reference a resource from the 'resourceTypes' attribute.">
+            <annotation>
+                <documentation>
+                    <html:p>
+                        The 'withResource' attribute should reference a resource from the 'resourceTypes' attribute.
+                    </html:p>
+                </documentation>
+            </annotation>
+        </assert>
+        <assert vc:minVersion="1.1"
+                test="every $attribute in schema:attribute satisfies
+                         if ($attribute/@withEventType) then
+                             empty(for $r in tokenize(string($attribute/@withEventType), ' ') return
+                                   if ($r = tokenize(string(@type), ' ')) then () else true())
+                         else true()"
+                xerces:message="The 'withEventType' attribute should reference a type from the 'types' attribute."
+                saxon:message="The 'withEventType' attribute should reference a type from the 'types' attribute.">
+            <annotation>
+                <documentation>
+                    <html:p>
+                        The 'withEventType' attribute should reference a type from the 'types' attribute.
+                    </html:p>
+                </documentation>
+            </annotation>
+        </assert>
+    </complexType>
+
+    <complexType name="ProductSimpleSchema">
+        <complexContent>
+            <extension base="schema:ProductSimpleSchemaBase">
+                <all>
+                    <element name="attribute" type="schema:Attribute" minOccurs="0" maxOccurs="50">
+                        <annotation>
+                            <documentation>
+                                <html:p>
+                                    A set of custom attributes. Currently,
+                                    only 50 custom attributes are allowed for
+                                    a product schema.
+                                </html:p>
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="attributeGroup" type="schema:AttributeGroup" minOccurs="0" maxOccurs="20">
+                        <annotation>
+                            <documentation>
+                                <html:p>
+                                    A set of custom attributes groups.
+                                    Currently only 20 groups are
+                                    allowed for a product schema.
+                                </html:p>
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="xpathAssertion" type="schema:XPathAssertion" minOccurs="0" maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>
+                                <html:p>
+                                    A set of xpath assertions.
+                                </html:p>
+                            </documentation>
+                        </annotation>
+                    </element>
+                </all>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="AttributeGroupBase">
+        <sequence>
+            <element name="description" type="xsd:string">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A description of the attribute group.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </element>
+        </sequence>
+        <attribute name="name" type="xsd:Name" use="required">
+            <annotation>
+                <documentation>
+                    <html:p>
+                        The name of the attribute group.
+                    </html:p>
+                </documentation>
+            </annotation>
+        </attribute>
+        <attribute name="minOccurs" type="schema:MinOccurs" use="optional" default="1">
+            <annotation>
+                <documentation>
+                    <html:p>
+                        Minimum occurrence of the attribute group.
+                    </html:p>
+                </documentation>
+            </annotation>
+        </attribute>
+        <attribute name="maxOccurs" type="schema:MaxOccurs" use="optional" default="1">
+            <annotation>
+                <documentation>
+                    <html:p>
+                        Maximum occurrence of the attribute group.
+                    </html:p>
+                </documentation>
+            </annotation>
+        </attribute>
+    </complexType>
+
+    <complexType name="AttributeGroup">
+        <complexContent>
+            <extension base="schema:AttributeGroupBase">
+                <sequence>
+                    <element name="attribute" type="schema:Attribute" minOccurs="0" maxOccurs="50">
+                        <annotation>
+                            <documentation>
+                                <html:p>
+                                    A set of custom attributes. Currently,
+                                    only 50 custom attributes are allowed for
+                                    a product schema.
+                                </html:p>
+                            </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="UsageAttributeGroup">
+        <complexContent>
+            <extension base="schema:AttributeGroupBase">
+                <sequence>
+                    <element name="attribute" type="schema:UsageAttribute" minOccurs="0" maxOccurs="50">
+                        <annotation>
+                            <documentation>
+                                <html:p>
+                                    A set of custom attributes. Currently,
+                                    only 50 custom attributes are allowed for
+                                    a product schema.
+                                </html:p>
+                            </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="ProductSimpleUsageSchema">
+        <complexContent>
+            <extension base="schema:ProductSimpleSchemaBase">
+                <all>
+                    <element name="aggregationPeriods" type="schema:AggregationPeriods" minOccurs="0">
+                        <annotation>
+                            <documentation>
+                                <html:p>
+                                    An optional list of periods specifying aggregation
+                                    periods. Usage events will be aggregated together when
+                                    their startTime or eventTime (whichever is present)
+                                    falls into the same aggregation period. Note we use
+                                    the word Period to match the JodaTime sense of the
+                                    word, which is distinguished from a Duration in that
+                                    it takes into consideration leap years / seconds, etc.
+                                </html:p>
+                                <html:p>
+                                    The first aggregation period begins at midnight, UTC.
+                                    The time period of the first period is the first element
+                                    in this list. Each subsequent element in this list
+                                    defines the time period of subsequent aggregation periods,
+                                    in order.
+                                </html:p>
+                                <html:p>
+                                    The period is inclusive of the start time, and
+                                    exclusive of the end time (calculated as start time +
+                                    time period, taking into account leap years / leap seconds,
+                                    etc.)). Each subsequent aggregation period begins at
+                                    the end time of the previous aggregation period.
+                                </html:p>
+                                <html:p>
+                                    The time periods in this list must sum to 24 hours exactly.
+                                    When not specified, a single aggregation period with a
+                                    duration of 24 hours is used. This default value of 24
+                                    hours should apply in most cases. However, during the
+                                    "soak period" used for product on-boarding, it may be
+                                    important to aggregate multiple times per day.
+                                </html:p>
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="attribute" type="schema:UsageAttribute" minOccurs="0" maxOccurs="50">
+                        <annotation>
+                            <documentation>
+                                <html:p>
+                                    A set of custom usage
+                                    attributes. Currently, only 50
+                                    custom attributes are allowed for
+                                    a product schema.
+                                </html:p>
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="attributeGroup" type="schema:UsageAttributeGroup" minOccurs="0" maxOccurs="20">
+                        <annotation>
+                            <documentation>
+                                <html:p>
+                                    A set of custom attributes groups.
+                                    Currently only 20 groups are
+                                    allowed for a product schema.
+                                </html:p>
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="xpathAssertion" type="schema:XPathAssertion" minOccurs="0" maxOccurs="unbounded">
+                        <annotation>
+                            <documentation>
+                                <html:p>
+                                    A set of xpath assertions.
+                                </html:p>
+                            </documentation>
+                        </annotation>
+                    </element>
+                </all>
+                <attribute name="groupByResource" type="xsd:boolean"
+                           use="optional" default="true">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                If groupByResource is true then attributes are
+                                grouped by the resourceID.  In other words,
+                                the product is being charged per resource.  If
+                                not, that attributes are grouped at the
+                                tenant level.  The default is true which
+                                should apply to most products.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="ranEnrichmentStrategy" type="schema:RANEnrichmentStrategy"
+                           use="optional" default="CI_SERVICE">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+
+                <assert vc:minVersion="1.1"
+                        test="if ((@groupByResource = true()) and (not(@resourceTypes))) then false() else true()"
+                        xerces:message="If groupByResource=true (or not specified), then the resourceTypes attribute must be supplied."
+                        saxon:message="If groupByResource=true (or not specified), then the resourceType attribute must be supplied.">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                If groupByResource is true then the
+                                resourceTypes attribute must be specified.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </assert>
+                <assert vc:minVersion="1.1"
+                        test="empty(for $t in tokenize(string(@type),' ') return if ($t='USAGE_SUMMARY') then true() else ())"
+                        xerces:message="Product schemas of type 'USAGE_SUMMARY' may not be explicitly defined."
+                        saxon:message="Product schemas of type 'USAGE_SUMMARY' may not be explicitly defined.">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                Product schemas of type
+                                'USAGE_SUMMARY' may not be explicitly
+                                defined.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </assert>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="AggregationPeriods">
+        <sequence>
+            <element name="aggregationPeriod" type="xsd:dayTimeDuration" maxOccurs="unbounded">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A duration of one of the aggregation periods.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </element>
+        </sequence>
+        <assert vc:minVersion="1.1"
+            test="xsd:dayTimeDuration('PT24H') = sum(for $d in element(schema:aggregationPeriod) return xsd:dayTimeDuration(string($d)))"
+            xerces:message="The list of time periods specified in aggregationPeriods must sum to exactly 24 hours."
+            saxon:message="The list of time periods specified in aggregationPeriods must sum to exactly 24 hours.">
+            <annotation>
+                <documentation>
+                    <html:p>
+                        The list of time periods specified in
+                        aggregationPeriods must sum to
+                        exactly 24 hours.
+                    </html:p>
+                </documentation>
+            </annotation>
+        </assert>
+    </complexType>
+
+    <complexType name="UsageAttribute">
+        <simpleContent>
+            <extension base="schema:Attribute">
+                <attribute name="aggregateFunction" type="usage:AggregateFunction" use="optional" default="NONE">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                For usage.  A description of how
+                                values for this attribute should be
+                                aggregated.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="unitOfMeasure" type="usage:UnitOfMeasure" use="optional">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                The unit of measure for the attribute.
+                                Note that if an aggregate function is
+                                specified, then a unit of measure
+                                should also be specified.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="groupBy" type="xsd:boolean" use="optional" default="false">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                All attributes with a groupBy value of
+                                true will be grouped for the purpose
+                                of aggregation.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <assert vc:minVersion="1.1" test="if (@aggregateFunction!='NONE') then @unitOfMeasure else true()"
+                        xerces:message="If a aggregateFunction is supplied then there should also be a unitOfMeasure."
+                        saxon:message="If a aggregateFunction is supplied then there should also be a unitOfMeasure.">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                If an aggregate-function is supplied then so
+                                should the unit of measure.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </assert>
+            </extension>
+        </simpleContent>
+    </complexType>
+
+    <complexType name="Attribute">
+        <simpleContent>
+            <extension base="xsd:string">
+                <attribute name="name" type="xsd:Name" use="required">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                The name of the attribute. The name
+                                must be a single word.  It cannot
+                                contain namespaces, it must not start
+                                with a number.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="type" type="schema:TypeList" use="required">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                The types applicable to this attribute.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="use"  type="schema:Use" use="required">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                Is the attribute optional, required, or
+                                synthesized. The use attribute is
+                                optional, if not specified the
+                                attribute will be labeled as optional.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="fixed" type="xsd:string" use="optional">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                If the attribute always has a fixed
+                                value, the value should be specified
+                                here.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="min" type="schema:MinMaxType" use="optional">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                The minimum value allowed in the
+                                numeric type.  The value is inclusive.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="max" type="schema:MinMaxType" use="optional">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                The minimum value allowed in the
+                                numeric type.  The value is inclusive.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="default" type="xsd:string" use="optional">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                If the attribute has a default value,
+                                then the default value should be
+                                specified here.  Note that only
+                                optional attributes can have default
+                                values.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="displayName" type="xsd:string" use="optional">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                A human readable name for the
+                                attribute that can be used for
+                                reports, invoices, etc.  The display
+                                name does not have the same constraints
+                                as the name attribute..it can contain
+                                spaces.  "displayName" is an optional
+                                attribute. If it is not specified the
+                                "name" attribute will be used in
+                                reports, invoices, etc.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="allowedValues" type="schema:TokenList" use="optional">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                An optional whitespace separated list
+                                of allowed values.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="searchable" type="xsd:boolean" use="optional" default="false">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                If this is set to true then there
+                                should be an index set so that you can
+                                search by this attribute.
+                            </html:p>
+                            <html:p>
+                                From a practical perspective this
+                                means that an atom hopper category
+                                will be set automatically with this
+                                attribute value.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="private" type="xsd:boolean" use="optional" default="false">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                If this is set to true then the
+                                attribute value is not shown 
+                                to the public.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="minLength" type="xsd:integer" use="optional">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                Denotes the minimum length of a string. It can be used only
+                                for string types. Default value, if not specified is 0.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="maxLength" type="xsd:integer" use="optional">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                Denotes a maximum length of a string. It can be used only
+                                for string types. 
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="withEventType" type="usage:TypeList" use="optional">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                The attribute is only valid with
+                                events of this type.  This is a
+                                whitespace seperated list "USAGE
+                                CREATE DELETE".  Currently extended
+                                event types are not supported.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="withResource" type="schema:NameList" use="optional">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                The attribute is only valid with
+                                events that reference this type of
+                                resource. This is a whitespace
+                                seperated list "WIDGET GADGET". The
+                                items on this list must be referenced
+                                in the resourceTypes attribute.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <assert vc:minVersion="1.1" test="if (@default and @use) then @use='optional' else true()"
+                        xerces:message="The attribute has a default value so 'use' must be 'optional'"
+                        saxon:message="The attribute has a default value so 'use' must be 'optional'">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                If the property has a default value then use must be optional.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </assert>
+                <assert vc:minVersion="1.1" test="normalize-space(string(.)) != '' and normalize-space(string(.)) != ' '"
+                        xerces:message="Each attribute must contain a human readable description within the &lt;attribute/&gt; element."
+                        saxon:message="Each attribute must contain a human readable description within the &lt;attribute/&gt; element.">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                Documentation must not be empty for an attribute.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </assert>
+                <assert vc:minVersion="1.1" test="if (@min) then @type=('integer','long','int', 'short', 'byte',
+                                                  'unsignedLong','unsignedInt','unsignedShort','unsignedByte','double',
+                                                  'float') else true()"
+                        xerces:message="You can only set minimum value in numeric types."
+                        saxon:message="You can only set minimum value in numeric types.">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                The minimum value is only allowed with numeric types.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </assert>
+                <assert vc:minVersion="1.1" test="if (@max) then @type=('integer','long','int', 'short', 'byte',
+                                                  'unsignedLong','unsignedInt','unsignedShort','unsignedByte','double',
+                                                  'float') else true()"
+                        xerces:message="You can only set maximum value in numeric types."
+                        saxon:message="You can only set maximum value in numeric types.">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                The maximum value is only allowed with numeric types.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </assert>
+                <assert vc:minVersion="1.1" test="if (@max or @min) then count(tokenize(string(@type),' ')) = 1 else true()"
+                        xerces:message="Using multiple types on an attribute is not allowed when min or max is set."
+                        saxon:message="Using multiple types on an attribute is not allowed when min or max is set.">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                Min and max can't be set on an
+                                attribute that is the union of
+                                multiple types.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </assert>
+                <assert vc:minVersion="1.1" test="if (@maxLength) then @type=('string', 'string*') else true()"
+                        xerces:message="You can only set maxLength in string types."
+                        saxon:message="You can only set maxLength value in string types.">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                The maxLength is only allowed with string types.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </assert>
+                <assert vc:minVersion="1.1" test="if (@minLength) then @type=('string', 'string*') else true()"
+                        xerces:message="You can only set minLength in string types."
+                        saxon:message="You can only set minLength value in string types.">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                The minLength is only allowed with string types.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </assert>
+                <assert vc:minVersion="1.1" test="if (@minLength) then @maxLength else true()"
+                        xerces:message="You can only set minLength if maxLength is also set."
+                        saxon:message="You can only set minLength if maxLength is also set.">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                The minLength is only allowed if maxLength is also set.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </assert>
+                <assert vc:minVersion="1.1" test="if (@withEventType) then not('EXTENDED' = @withEventType) else true()"
+                        xerces:message="'withEventType' cannot be 'EXTENDED'"
+                        saxon:message="'withEventType' cannot be 'EXTENDED'">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                               The withEventType attribute cannot be equal to 'EXTENDED'.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </assert>
+            </extension>
+        </simpleContent>
+    </complexType>
+
+    <complexType name="XPathAssertion">
+        <simpleContent>
+            <extension base="xsd:string">
+                <attribute name="test" type="xsd:string" use="required">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                An XPath test, should evaluate to
+                                true() or false(). If false(), then
+                                the content of the element is returned
+                                in an error message.
+                            </html:p>
+                            <html:p>
+                                The XPath context is the root product
+                                element by default. The context can be
+                                changed to the root of the entry via
+                                the scope attribute. The prefix 'p' is
+                                <html:strong>always</html:strong>
+                                bound to the product schema. If the
+                                context is entry then the prefix
+                                'atom' is bound to the atom namespace
+                                and 'event' is bound to the event
+                                namespace.  Finally, the prefix 'xs'
+                                is bound tho the XML Schema namespace.
+                            </html:p>
+                            <html:p>
+                                When the scope is entry, the variables
+                                $entry, $event, and $product are
+                                defined, each pointing to the
+                                respective part of the message.
+                            </html:p>
+                            <html:p>
+                                Note that when the scope is product,
+                                you <html:strong>cannot</html:strong>
+                                use .. to access parent elements --
+                                use the entry scope instead.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <attribute name="scope" type="schema:XPathScope" use="optional" default="product">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                Determines the scope of an XPath
+                                assertion. The scope determins what
+                                the context of the XPath assertion is.
+                                It can be the 'product' or the
+                                'entry'.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </attribute>
+                <assert vc:minVersion="1.1" test="normalize-space(string(.)) != '' and normalize-space(string(.)) != ' '"
+                        xerces:message="Each xpathAssertion must contain a human readable error message within the &lt;xpathAssertion/&gt; element."
+                        saxon:message="Each xpathAssertion must contain a human readable error message within the &lt;xpathAssertion/&gt; element.">
+                    <annotation>
+                        <documentation>
+                            <html:p>
+                                Error message must not be empty for
+                                the xpathAssertion.
+                            </html:p>
+                        </documentation>
+                    </annotation>
+                </assert>
+            </extension>
+        </simpleContent>
+    </complexType>
+
+    <!--
+        Simple Types
+    -->
+    <simpleType name="TokenList">
+        <list itemType="xsd:token"/>
+    </simpleType>
+
+    <simpleType name="NameList">
+        <list itemType="xsd:Name"/>
+    </simpleType>
+
+    <simpleType name="MaxOccurs">
+        <union memberTypes="schema:MinOccurs">
+            <simpleType>
+                <restriction base="xsd:string">
+                    <enumeration value="unbounded"/>
+                </restriction>
+            </simpleType>
+        </union>
+    </simpleType>
+
+    <simpleType name="MinOccurs">
+        <restriction base="xsd:unsignedInt">
+            <maxInclusive value="5000"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="MinMaxType">
+        <union memberTypes="xsd:double xsd:decimal"/>
+    </simpleType>
+
+    <simpleType name="Use">
+        <annotation>
+            <documentation>
+                <html:p>
+                    Constrains how and when the value of the attribute is supplied.
+                </html:p>
+            </documentation>
+        </annotation>
+        <restriction base="xsd:token">
+            <enumeration value="optional"/>
+            <enumeration value="required"/>
+            <enumeration value="synthesized"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="XPathScope">
+        <annotation>
+            <documentation>
+                <html:p>
+                    Scope of an XPath assertion
+                </html:p>
+            </documentation>
+        </annotation>
+        <restriction base="xsd:token">
+            <enumeration value="entry"/>
+            <enumeration value="product"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="Type">
+        <annotation>
+            <documentation>
+                <html:p>
+                    Allowed types
+                </html:p>
+            </documentation>
+        </annotation>
+        <restriction base="xsd:token">
+            <!--
+               Allowed String Types
+            -->
+            <enumeration value="string">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            Any sequence of characters.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="Name">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A valid name. That is a string that
+                            consist exclusively of letters, digits,
+                            ideographs, and the underscore, hyphen,
+                            period, and colon. Digits, the hyphen, and
+                            the period may not be used to start a
+                            name, although they may be used inside the
+                            name.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="Name*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A list of names.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="string*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A list of strings.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <!--
+              Numeric Types
+            -->
+            <enumeration value="integer">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            An integer value of arbitrary size.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="long">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A signed integer that can be represented
+                            by eight bytes. The minimum value of a
+                            long is 9223372036854775807, the maximum
+                            value is -9223372036854775808.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="int">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A signed integer that can be represented
+                            by four bytes. The minimum value of an int
+                            is -2147483648, the maximum value is
+                            2147483647.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="short">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A signed integer that can be represented
+                            by two bytes. The minimum value of a short
+                            is -32768, the maximum value is 32767.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="byte">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A signed integer that can be represented
+                            by a single byte. The minimum value of a byte
+                            is -128, the maximum value is 127.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="unsignedLong">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            An unsigned integer that can be
+                            represented by eight bytes. The minimum
+                            value of a unsignedLong is 0, the maximum
+                            value is 18446744073709551615.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="unsignedInt">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            An unsigned integer that can be
+                            represented by four bytes. The minimum
+                            value of an unsignedInt is 0, the maximum
+                            value is 4294967295.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="unsignedShort">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            An unsigned integer that can be
+                            represented by two bytes. The minimum
+                            value of an unsignedShort is 0, the
+                            maximum value is 65535.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="unsignedByte">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            An unsigned integer that can be represented
+                            by a single byte. The minimum value of a byte
+                            is 0, the maximum value is 255.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="double">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A decimal value that can be represented by
+                            an eight byte floating-point number in
+                            IEEE 754 format. Values such as INF
+                            (infinity) and NaN (not a number) are
+                            allowed.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="float">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A decimal value that can be represented by
+                            a four byte floating-point number in
+                            IEEE 754 format. Values such as INF
+                            (infinity) and NaN (not a number) are
+                            allowed.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="integer*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of integer
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="long*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of long
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="int*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of int
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="short*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of short
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="byte*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of byte
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="unsignedLong*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of unsignedLong
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="unsignedInt*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of unsignedInt
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="unsignedShort*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of unsignedShort
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="unsignedByte*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of unsignedByte
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="double*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of double
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="float*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of float
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+
+            <!--
+                Booleans
+            -->
+            <enumeration value="boolean">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of long
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="boolean*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of boolean
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+
+
+            <!--
+               ISO 8601 date and time
+            -->
+            <enumeration value="duration">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            The duration type represents a length
+                            of time such as 15 minutes; 2 hours; or 3
+                            years, 7 months, 2 days, 8 hours, 32
+                            minutes, and 12 seconds. It does not have
+                            a specific beginning or end, just a
+                            length. Durations are represented using
+                            the ISO-8601 standard format
+                            PnYnMnDTnHnMnS. nY gives the number of
+                            years, nM the number of months, nD the
+                            number of days, nH the number of hours, nM
+                            the number of minutes, and nS the number
+                            of seconds. The number of years, months,
+                            days, hours, minutes, and seconds are all
+                            given as nonnegative integers. The number
+                            of seconds is a decimal number with as
+                            many places after the decimal point as
+                            necessary. For example, in this format, 3
+                            years, 7 months, 2 days, 8 hours, 32
+                            minutes, and 12 seconds is written as
+                            P3Y7M2DT8H32M12S. Any values that are zero
+                            can be omitted. Thus, a duration of 2
+                            years and 2 minutes can be written as
+                            P2YT2M. If there are no hours, minutes, or
+                            seconds, then the T is omitted. Thus, a
+                            duration of two years is written as P2Y. A
+                            leading minus sign before the P indicates
+                            a negative duration.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="date">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                          The date type represents a specific day
+                          in history such as September 26, 2005. Dates
+                          are written in the form CCYY-MM-DD. For
+                          example, September 26, 2005 is written as
+                          2005-09-26.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="dateTime">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                          The dateTime type represents a specific
+                          moment in history, such as 3:32 P.M.,
+                          September 26, 2003. Date-times are written
+                          in the form CCYY-MM-DDThh:mm:ss. An optional
+                          time zone indicator in the form ±hh:mm may
+                          be suffixed to provide a time zone as an
+                          offset from Coordinated Universal Time
+                          (Greenwich Mean Time, UTC). For example,
+                          2003-09-26T15:32:00-05:00 is 3:32 P.M.,
+                          September 26, 2003 in the U.S. Eastern time
+                          zone. A Z can be used instead to indicate
+                          UTC: 1999-12-31T00:00:00Z.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="utcDateTime">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A dateTime constraint to be in the UTC
+                            timezone.  That is the timezone offset
+                            must be 0 OR the value must end with Z.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="time">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            The time type represents a specific time
+                            of day on no particular day, such as 3:32
+                            P.M. Times are written in the form
+                            ±hh:mm:ss.xxx using a 24-hour clock and as
+                            many fractions of a second as necessary.
+                            An optional time zone indicator in the
+                            form ±hh:mm may be suffixed to provide a
+                            time zone as an offset from Coordinated
+                            Universal Time (Greenwich Mean Time,
+                            UTC). For example, 15:32:00-05:00 is 3:32
+                            P.M., in the U.S. Eastern time zone. A Z
+                            can be used instead to indicate UTC:
+                            00:00:00Z.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="utcTime">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A time constraint to be in the UTC
+                            timezone.  That is the timezone offset
+                            must be 0 OR the value must end with Z.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="duration*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of duration
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="date*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of date
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="dateTime*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of dateTime
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="utcDateTime*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of utcDateTime
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="time*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of time
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="utcTime*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of utcTime
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="gDay*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of gDay
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="gMonth*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of gMonth
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="gYear*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of gYear
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="gMonthDay*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of gMonthDay
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="gMonthYear*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of gMonthYear
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+
+            <!--
+                Others
+            -->
+            <enumeration value="base64Binary">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                             An arbitrary sequence of bytes that has
+                             been encoded in ASCII characters using
+                             the Base-64 algorithm defined in RFC
+                             2045, <html:i>Multi-purpose Internet Mail
+                             Extensions (MIME) Part One: Format of
+                             Internet Message Bodies</html:i>. The
+                             letters A–Z and a–z, the digits 0–9, and
+                             the punctuation marks + and / are used to
+                             encode data according to an algorithm
+                             that maps four of these characters to
+                             three arbitrary bytes. The equals sign is
+                             used to pad data at the end if necessary.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="anyURI">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                          The anyURI type indicates a Uniform Resource
+                          Identifier. This includes not only Uniform
+                          Resource Locators (URLs), but also Uniform
+                          Resource Names (URNs). Both relative and
+                          absolute URLs are allowed.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="UUID">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A Universally unique identifier in its
+                            canonical form: 32 hexadecimal digits,
+                            displayed in five groups separated by
+                            hyphens, in the form 8-4-4-4-12 for a
+                            total of 36 characters (32 digits and four
+                            hyphens). For example:
+                            7eadda6a-9f3e-11e1-9ef4-77b6922f8866.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="anyURI*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of anyURI
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="UUID*">
+                <annotation>
+                    <documentation>
+                        <html:p>
+                            A whitespace separated list of UUIDs
+                            values.
+                        </html:p>
+                    </documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+    <simpleType name="TypeList">
+        <list itemType="schema:Type"/>
+    </simpleType>
+    <simpleType name="RANEnrichmentStrategy">
+        <annotation>
+            <documentation>
+                <html:p>
+                    Method by which the tenant ID is mapped to a Rackspace Account Number (RAN).
+                </html:p>
+            </documentation>
+        </annotation>
+        <restriction base="xsd:string">
+            <enumeration value="CI_SERVICE"/>
+            <enumeration value="HYBRID_TO_CORE_RAN"/>
+            <enumeration value="INTEGER_RANGE"/>
+            <enumeration value="NONE"/>
+        </restriction>
+    </simpleType>
+</schema>

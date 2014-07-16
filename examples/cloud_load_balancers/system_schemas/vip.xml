@@ -1,4 +1,7 @@
 <systemSchema xmlns="http://docs.rackspace.com/core/system/schema"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://docs.rackspace.com/core/system/schema ../../systemSchema.xsd" 
+    
               version="1"
               serviceCode="CloudLoadBalancers"
               resourceType="VIP">

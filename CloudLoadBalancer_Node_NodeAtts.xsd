@@ -1,0 +1,35 @@
+
+<xsd:schema xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:html="http://www.w3.org/1999/xhtml"
+            xmlns="http://www.w3.org/2001/XMLSchema"
+            xmlns:lb="http://docs.rackspace.com/core/system/CloudLoadBalancers/Node/NodeAtts"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified"
+            targetNamespace="http://docs.rackspace.com/core/system/CloudLoadBalancers/Node/NodeAtts">
+
+     <xs:element name="nodeAtts">
+     
+       <xs:complexType>
+     
+         <xs:annotation>
+           <xs:documentation>
+             <html:p>Events in the Node resource of the CloudLoadBalancer resource</html:p>
+           </xs:documentation>
+         </xs:annotation> 
+     
+         <xs:sequence>
+           <xs:element name="address" type="xs:string" minOccurs="0"/>
+           <xs:element name="port" type="xs:integer" minOccurs="0"/>
+           <xs:element name="algorithm" type="xs:string" minOccurs="0"/>
+           <xs:element name="weight" type="xs:integer" minOccurs="0"/>
+         </xs:sequence>
+      
+       </xs:complexType>
+       
+     </xs:element>      
+            
+</xsd:schema>
+   
+

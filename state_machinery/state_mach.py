@@ -6,7 +6,7 @@ def cat(x,y):
   return xlist + ylist
 
 class State:
-  def __init__(self,name,description=""):
+  def __init__(self,name,description):
     self.name = name
     self.description = description
     self.transitions_out = {}
@@ -48,24 +48,24 @@ class Transition:
     to_state.transition_in(self)
 
 class StateMachine:
-  def __init__(self,service,resource,version,description=""):
+  def __init__(self,service,resource,version,description):
     self.service = service
     self.resource = resource
     self.version = version
     self.description = description
     self.states = {}
-    self.state("start")
-    self.state("end")
+    self.state("start","The starting state")
+    self.state("end", "The terminal end state")
     self.transitions = {}    
-  def state(self,name,description=""):
-    self.states[name]=State(name,description="")
+  def state(self,name,description):
+    self.states[name]=State(name,description)
   def add_states(self,namelist):
     for name in namelist:
       self.state(name)
   def transition(self,name,from_name,to_name,attributes=[],actor="user"):
     from_state = self.states[from_name]
     to_state = self.states[to_name]
-    transition = Transition(name,from_state,to_state,attributes,actor)
+    self.transitions[name] = Transition(name,from_state,to_state,attributes,actor)
   def accept_visitor(self,visitor):
     self.visitor = visitor
   def visit(self):

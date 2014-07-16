@@ -1,8 +1,9 @@
 from state_machinery import *
 
-vip_state_machine = StateMachine("CloudLoadBalancers","VIP",1)
+vip_state_machine = StateMachine("CloudLoadBalancers","VIP",1,
+  "System events for Lbaas Virtual IPs")
 
-vip_state_machine.state("allocated", "A VIP is allocated")
+vip_state_machine.state("allocated", "A VIP is allocated to the load balancer")
 
 ##### ATTRIBUTES ######
 
@@ -26,10 +27,4 @@ vip_state_machine.transition("enable","start","allocated", virtualIpAttributes)
 vip_state_machine.transition("disable","allocated","end")
 
 
-###########
-#dabble code
-# execfile('examples/cloud_load_balancers/state_machines/vip.py')
-from visitors.template import Render
-systemschema = Template('system_schema.xml')
-print vip_state_machine.do(systemschema)
 

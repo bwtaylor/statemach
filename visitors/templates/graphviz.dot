@@ -1,0 +1,13 @@
+digraph SystemModel {
+
+  rankdir=LR;   
+  node [fontname="Helvetica", shape=ellipse, style=filled,fillcolor="#EEEEEE"]
+
+  start[label="start", shape="point"]
+  end[label="end", shape="doublecircle", fillcolor="white"]
+
+  { {% for t in transitions %}
+    {{t.from_state.name}} -> {{t.to_state.name}} [label="{{t.name}}"];{% endfor %}
+  } 
+  
+}

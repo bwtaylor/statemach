@@ -1,0 +1,75 @@
+<schema
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:sys="http://docs.rackspace.com/core/system/schema"
+    xmlns:prodSchema="http://docs.rackspace.com/core/usage/schema"
+    xmlns:usage="http://docs.rackspace.com/core/usage"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xerces="http://xerces.apache.org"
+    xmlns:saxon="http://saxon.sf.net/"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+    targetNamespace="http://docs.rackspace.com/core/system/schema"
+    version="1.0">
+
+    <import namespace="http://docs.rackspace.com/core/usage/schema"
+            schemaLocation="productSchema.xsd"/>
+
+    <element name="systemSchema" type="sys:SystemSchema"/>
+
+    <!-- Complex Type -->
+    <complexType name="SystemSchema">
+        <all>
+            <element name="description" type="xsd:string"/>
+            <element name="attributeGroup" type="sys:AttributeGroup" minOccurs="0" maxOccurs="20"/>
+            <element name="state" type="sys:State" minOccurs="1" maxOccurs="50"/>
+            <element name="transition" type="sys:Transition" minOccurs="1" maxOccurs="50"/>
+            <element name="xpathAssertion" type="prodSchema:XPathAssertion" minOccurs="0" maxOccurs="unbounded"/>
+        </all>
+        <attribute name="version" type="xsd:string" use="required"/>
+        <attribute name="serviceCode" type="xsd:Name" use="required"/>
+        <attribute name="resourceType" type="xsd:Name" use="required"/>
+    </complexType>
+
+    <complexType name="AttributeGroup">
+        <sequence>
+            <element name="description" type="xsd:string"/>
+            <element name="attribute" type="prodSchema:Attribute" minOccurs="0" maxOccurs="50"/>
+        </sequence>
+        <attribute name="name" type="xsd:Name" use="required"/>
+    </complexType>
+
+    <complexType name="State">
+        <simpleContent>
+            <extension base="xsd:string">
+                <attribute name="name" type="xsd:Name" use="required"/>
+                <assert vc:minVersion="1.1" test="@name != 'Start'"
+                        xerces:message="Start is a predefined state"
+                        saxon:message="Start is a predefined state"/>
+                <assert vc:minVersion="1.1" test="@name != 'End'"
+                        xerces:message="End is a predefined state"
+                        saxon:message="End is a predefined state"/>
+            </extension>
+        </simpleContent>
+    </complexType>
+
+    <complexType name="Transition">
+        <all>
+            <element name="attribute" type="prodSchema:Attribute" minOccurs="0" maxOccurs="50"/>
+        </all>
+        <attribute name="name" type="xsd:Name" use="required"/>
+        <attribute name="from" type="xsd:Name" use="required"/>
+        <attribute name="to" type="xsd:Name" use="required"/>
+        <attribute name="actor" type="sys:Actor" use="optional" default="USER"/>
+        <attribute name="attributeGroups" type="prodSchema:NameList" use="optional"/>
+    </complexType>
+
+    <!-- Simple Types -->
+    <simpleType name="Actor">
+        <restriction base="xsd:token">
+            <enumeration value="USER"/>
+            <enumeration value="SYSTEM"/>
+        </restriction>
+    </simpleType>
+</schema>

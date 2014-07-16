@@ -1,15 +1,23 @@
 <systemSchema xmlns="http://docs.rackspace.com/core/system/schema"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://docs.rackspace.com/core/system/schema ../../examples/systemSchema.xsd" 
               version="{{ state_machine.version }}"
               serviceCode="{{ state_machine.service }}"
               resourceType="{{ state_machine.resource }}">
-    <description>
-        {{ state_machine.description }}
-    </description>
+  <description>
+    {{ state_machine.description }}
+  </description>
 
 {% for state in states %}
-    <state name="{{state.name}}">
-        {{state.description}}
-      </state>
+  <state name="{{state.name}}">
+    {{state.description}}
+  </state>
+{% endfor %}
+
+{% for transition in transitions %}
+  <transition name="{{transition.name}}" from="{{transition.from_state.name}}" to="{{transition.to_state.name}}">
+    {{transition.description}}
+  </transition>
 {% endfor %}
 
 </systemSchema>
