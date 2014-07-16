@@ -1,15 +1,15 @@
 ###########
 # >>> execfile('examples/vip_system_schema.py')
 
-from visitors.template import Template
+import visitors.template as t
 
 execfile('examples/cloud_load_balancers/state_machines/vip.py')
 
-systemschema = Template('system_schema.xml')
-graphviz = Template('graphviz.dot')
+systemschema = t.Template('system_schema.xml')
+dot2svg_cmd = 'dot -Tsvg {path}/graphviz.dot > {path}/vip-graphviz.svg'
+graphviz = t.TemplateAndCommand('graphviz.dot', dot2svg_cmd)
 
 vip_state_machine.do(systemschema)
 vip_state_machine.do(graphviz)
 
-import os
-os.system("dot -Tsvg output/VIP/graphviz.dot > output/VIP/vip-graphviz.svg")
+

@@ -1,14 +1,16 @@
-from jinja2 import Environment, PackageLoader
+import jinja2 as j
 import os, errno
 
-class Template:
+import visitors.visitor as v
+
+class Template(v.Visitor):
   
   def __init__(self,filename):
     self.filename = filename
-    env = Environment(loader=PackageLoader('statemach', 'visitors/templates'))
+    env = j.Environment(loader=j.PackageLoader('statemach', 'visitors/templates'))
     self.template = env.get_template(filename)
     
-  def mkdir_p(self,path):
+  def _mkdir_p(self,path):
     try:
       os.makedirs(path)
     except OSError as x:
@@ -22,9 +24,20 @@ class Template:
       states=state_machine.states.values(),
       transitions=state_machine.transitions.values()
     )
-    path='output/'+state_machine.resource
-    self.mkdir_p(path)
-    outfile =open(path+'/'+self.filename, 'w+')
+    self.path='output/'+state_machine.service+'/'+state_machine.resource
+    self._mkdir_p(self.path)
+    outfile =open(self.path+'/'+self.filename, 'w+')
     print >>outfile, output
-    
+
+
+class TemplateAndCommand(Template):
+  
+    def __init__(self,filename,command_template):
+      Template.__init__(self,filename)
+      self.command_template = command_template
       
+    def visit(self, state_machine):
+      Template.visit(self,state_machine)
+      system_command = self.command_template.format(path=self.path)
+      print "system_command: ", system_command
+      os.system(system_command)
