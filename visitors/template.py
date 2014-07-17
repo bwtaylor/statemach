@@ -2,6 +2,7 @@ import jinja2 as j
 import os, errno
 
 import visitors.visitor as v
+import state_machinery.state_mach as sm
 
 class Template(v.Visitor):
   
@@ -20,10 +21,10 @@ class Template(v.Visitor):
 
   def visit(self, state_machine):
     output = self.template.render(
-      state_machine=state_machine, 
-      states=state_machine.states.values(),
-      transitions=state_machine.transitions.values()
-    )
+      state_machine = state_machine, 
+      states = state_machine.states.values(),
+      transitions = state_machine.transitions.values(),
+      attribute_groups = state_machine.attribute_group_list())
     self.path='output/'+state_machine.service+'/'+state_machine.resource
     self._mkdir_p(self.path)
     outfile =open(self.path+'/'+self.filename, 'w+')
@@ -39,5 +40,4 @@ class TemplateAndCommand(Template):
     def visit(self, state_machine):
       Template.visit(self,state_machine)
       system_command = self.command_template.format(path=self.path)
-      print "system_command: ", system_command
       os.system(system_command)

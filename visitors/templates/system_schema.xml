@@ -1,6 +1,6 @@
 <systemSchema xmlns="http://docs.rackspace.com/core/system/schema"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="http://docs.rackspace.com/core/system/schema ../../examples/systemSchema.xsd" 
+              xsi:schemaLocation="http://docs.rackspace.com/core/system/schema ../../../examples/systemSchema.xsd" 
               version="{{ state_machine.version }}"
               serviceCode="{{ state_machine.service }}"
               resourceType="{{ state_machine.resource }}">
@@ -13,11 +13,21 @@
     {{state.description}}
   </state>
 {% endfor %}
-
-{% for transition in transitions %}
-  <transition name="{{transition.name}}" from="{{transition.from_state.name}}" to="{{transition.to_state.name}}">
-    {{transition.description}}
-  </transition>
+{% for t in transitions %}
+  <transition name="{{t.name}}" from="{{t.from_state.name}}" to="{{t.to_state.name}}" {% if t.attribute_groups() %}attributeGroups="{{','.join(t.attribute_group_list())}}"{% endif %}/>
+{% endfor %}
+{% for ag in attribute_groups %}
+  <attributeGroup name="{{ag.name}}">
+  
+    <description>
+      {{ag.description}}
+    </description>
+    {% for a in ag.attributes %}
+    <attribute name="{{a.name}}" type="{{a.type}}" use="{{a.use}}">
+      {{a.description}}
+    </attribute>
+    {% endfor %}    
+  </attributeGroup>
 {% endfor %}
 
 </systemSchema>

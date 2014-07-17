@@ -27,10 +27,12 @@ class State:
  
 class Attribute:
   
-  def __init__(self,name,type,description=""):
-    self.name = name
+  def __init__(self,name,type,description,use="required"):
     self._valid_types = ["string","int"]
+    self._valid_uses = ["required","optional"]
+    self.name = name
     self.type = type
+    self.use = use
     self.description = description
     self.constraints = []
   
@@ -42,23 +44,31 @@ class Attribute:
   
   
 class AttributeGroup:
-  def __init__(self,name,attributes):
-    self.name=name
-    self.attributes=attributes
+  def __init__(self,name,attributes,description):
+    self.name = name
+    self.attributes = attributes
     self.constraints = []
+    self.description = description
   def constraint(self, constraint):
     self.constraints.append(constraint)
     
     
 class Transition:
+  
   def __init__(self,name,from_state,to_state,attributes=[],actor="user"):
-    self.name=name
-    self.from_state=from_state
-    self.to_state=to_state
-    self.attributes=_cat([],attributes)  
-    self.actor=actor
+    self.name = name
+    self.from_state = from_state
+    self.to_state = to_state
+    self.attributes = _cat([],attributes)  
+    self.actor = actor
     from_state.transition_out(self)
     to_state.transition_in(self)
+    
+  def attribute_groups(self):
+    return [ag for ag in self.attributes if isinstance(ag, AttributeGroup)]
+    
+  def attribute_group_list(self):
+    return [ag.name for ag in self.attribute_groups()]
 
 
 class StateMachine:
@@ -72,6 +82,7 @@ class StateMachine:
     self.state("start","The starting state")
     self.state("end", "The terminal end state")
     self.transitions = {}
+    self.attribute_groups = {}
     
   def state(self,name,description):
     # todo: handle updates to existing states
@@ -85,7 +96,14 @@ class StateMachine:
   def transition(self,name,from_name,to_name,attributes=[],actor="user"):
     from_state = self.states[from_name]
     to_state = self.states[to_name]
-    self.transitions[name] = Transition(name,from_state,to_state,attributes,actor)
+    transition = Transition(name,from_state,to_state,attributes,actor)
+    self.transitions[name] = transition
+    new_attribute_groups = {ag.name:ag for ag in transition.attribute_groups()}
+    self.attribute_groups = dict(self.attribute_groups.items() + new_attribute_groups.items())
+    return transition
+    
+  def attribute_group_list(self):
+    return self.attribute_groups.values()
   
   def accept_visitor(self,visitor):
     self.visitor = visitor
