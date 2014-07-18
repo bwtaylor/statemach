@@ -1,5 +1,5 @@
 digraph SystemModel {
-
+  
   rankdir=LR;   
   node [fontname="Helvetica", shape=ellipse, style=filled,fillcolor="#EEEEEE"]
 
@@ -7,7 +7,8 @@ digraph SystemModel {
   end[label="end", shape="doublecircle", fillcolor="white"]
 
   { {% for t in transitions %}
-    {{t.from_state.name}} -> {{t.to_state.name}} [label="{{t.name}}"];{% endfor %}
+    {{t.from_state.name}} -> {{t.to_state.name}} [label="{{t.name}}", color={{t.actor|actor_color(actors)}}, fontcolor={{t.actor|actor_color(actors)}} ];
+    {%- endfor %}
   } 
   
 }

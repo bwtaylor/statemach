@@ -1,0 +1,37 @@
+<xs:schema
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+    targetNamespace="http://docs.rackspace.com/core/system/{{state_machine.service}}/{{state_machine.resource}}"
+    xmlns="http://docs.rackspace.com/core/system/{{state_machine.service}}/{{state_machine.resource}}"
+    version="1.0">
+
+  <xs:element name="{{state_machine.resource}}" type="{{state_machine.resource}}Type"/>
+
+  <xs:complexType name="{{state_machine.resource}}Type">
+    {% for ag in attribute_groups %}<xs:attributeGroup ref="{{ag.name}}"/>
+  {% endfor %}</xs:complexType> 
+  
+  {% for ag in attribute_groups %}
+  <xs:attributeGroup name="{{ag.name}}">
+  
+    <xs:annotation>
+      <xs:documentation>
+      {{ag.description}}
+      </xs:documentation>
+    </xs:annotation>
+    {% for a in ag.attributes %}
+    <xs:attribute name="{{a.name}}" type="xs:{{a.type}}" use="{{a.use}}">
+      <xs:annotation>
+        <xs:documentation>
+          {{a.description}}
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    {% endfor %}    
+  </xs:attributeGroup>
+  {% endfor %}
+    
+</xs:schema>

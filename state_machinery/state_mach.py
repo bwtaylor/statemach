@@ -83,6 +83,7 @@ class StateMachine:
     self.state("end", "The terminal end state")
     self.transitions = {}
     self.attribute_groups = {}
+    self.actors = ["user"]
     
   def state(self,name,description):
     # todo: handle updates to existing states
@@ -90,21 +91,24 @@ class StateMachine:
     self.states[name] = state
     return state
     
-  def add_states(self,namelist):
-    return [self.state(name) for name in namelist]
+  def add_states(self,states):
+    return [self.state(name, states[name]) for name in states.keys()]
     
   def transition(self,name,from_name,to_name,attributes=[],actor="user"):
     from_state = self.states[from_name]
     to_state = self.states[to_name]
     transition = Transition(name,from_state,to_state,attributes,actor)
-    self.transitions[name] = transition
+    key = actor+'_'+name+'_'+from_name+'_'+to_name
+    self.transitions[key] = transition
     new_attribute_groups = {ag.name:ag for ag in transition.attribute_groups()}
     self.attribute_groups = dict(self.attribute_groups.items() + new_attribute_groups.items())
+    if actor not in self.actors:
+      self.actors.append(actor)
     return transition
     
   def attribute_group_list(self):
     return self.attribute_groups.values()
-  
+      
   def accept_visitor(self,visitor):
     self.visitor = visitor
   

@@ -7,7 +7,7 @@ vip_state_machine.state("allocated", "A VIP is allocated to the load balancer")
 
 ##### ATTRIBUTES ######
 
-address = Attribute("address","string", "address of the node")
+address = Attribute("address","string", "Network address of the node")
 
 ip_version = Attribute("ip_version", "string", "Version of the IP protocal: IPv4 or IPv6")
 ip_version.constraint(Enumeration({
